@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func pp_json(x interface{}) {
+func ppJson(x interface{}) {
 	b, err := json.MarshalIndent(x, "", "  ")
 	if err != nil {
 		fmt.Println("error:", err)
