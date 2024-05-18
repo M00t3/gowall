@@ -16,8 +16,14 @@ type pic struct {
 func GetPics(page int) []pic {
 	var pics []pic
 	counter := 0
-	url := fmt.Sprintf("%s/%s?categories=%s&atleast=%s&ratios=%s&topRange=%s&sorting=%s&page=%s&purity=%s&order=desc&ai_art_filter=1",
-		site, mode, categories, atleast, ratios, topRange, sorting, strconv.Itoa(page), purity)
+	var url string
+	if api_key != "" {
+		url = fmt.Sprintf("%s/%s?categories=%s&atleast=%s&ratios=%s&topRange=%s&sorting=%s&page=%s&purity=%s&apikey=%s&order=desc&ai_art_filter=1",
+			site, mode, categories, atleast, ratios, topRange, sorting, strconv.Itoa(page), purity, api_key)
+	} else {
+		url = fmt.Sprintf("%s/%s?categories=%s&atleast=%s&ratios=%s&topRange=%s&sorting=%s&page=%s&purity=%s&order=desc&ai_art_filter=1",
+			site, mode, categories, atleast, ratios, topRange, sorting, strconv.Itoa(page), purity)
+	}
 
 	resp, err := http.Get(url)
 	if err != nil {
