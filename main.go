@@ -3,54 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"gowall/utils"
 	"net/http"
-	"os"
 	"strconv"
 )
 
 type pic struct {
 	name string
 	url  string
-}
-
-func pp_json(x interface{}) {
-	b, err := json.MarshalIndent(x, "", "  ")
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	fmt.Println(string(b))
-}
-
-func createDirectory(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		// If the directory does not exist, create it
-		err = os.MkdirAll(path, 0755)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func downloadFile(filepath string, url string) error {
-	// Send a GET request to the URL
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Create a new file
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Write the response body to the file
-	_, err = io.Copy(out, resp.Body)
-	return err
 }
 
 func main() {
@@ -82,16 +42,17 @@ func main() {
 
 	var pics []pic
 	save_directory := "images"
-	createDirectory(save_directory)
+	utils.CreateDirectory(save_directory)
 	for index, value := range data {
 		// pp_json(i)
 		file_url := value.(map[string]interface{})["path"].(string)
 		file_name := strconv.Itoa(index)
 		pics = append(pics, pic{name: file_name, url: file_url})
 
-		err := downloadFile(save_directory+"/"+file_name+".jpg", file_url)
+		err := utils.DownloadFile(save_directory+"/"+file_name+".jpg", file_url)
 		if err != nil {
 		}
+		break
 	}
 	for _, pic := range pics {
 		fmt.Printf("%v : %v \n", pic.name, pic.url)
