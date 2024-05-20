@@ -6,6 +6,7 @@ import (
 	"gowall/utils"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type pic struct {
@@ -44,38 +45,53 @@ func GetPics(page int, pics *[]pic) {
 	}
 }
 
+func DownlaodInParallel(pics []pic, save_directory string, pic_num int) {
+	var wg sync.WaitGroup
+	sem := make(chan bool, 3) // Limit to 3 parallel downloads
+
+	counter := 0
+	for _, item := range pics {
+		wg.Add(1)
+		go func(counter int, pic pic) {
+			defer wg.Done()
+			sem <- true // Will block if there are already 3 downloads in progress
+			file := strconv.Itoa(counter + 1)
+			err := utils.DownloadFile(save_directory+"/"+file+".jpg", pic.url)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Println("Downloaded: ", counter+1)
+			}
+			<-sem // Release a slot
+		}(counter, item)
+		counter++
+		if counter >= pic_num {
+			break
+		}
+	}
+
+	wg.Wait() // Wait for all downloads to finish
+}
+
 func main() {
 	pics := []pic{}
 	var err error
 
-	var page_number int
+	var total_pic int
 	fmt.Print("Enter an integer for number of wallpaper that you want downlaod: ")
-	_, err = fmt.Scan(&page_number)
+	_, err = fmt.Scan(&total_pic)
 	if err != nil {
 		panic(err)
 	}
 
 	page := 0
 	for {
-		if len(pics) >= page_number {
+		if len(pics) >= total_pic {
 			break
 		}
 		page++
 		GetPics(page, &pics)
 	}
 
-	counter := 0
-	for _, pic := range pics {
-		counter++
-		if counter > page_number {
-			break
-		}
-		file := strconv.Itoa(counter)
-		err = utils.DownloadFile(save_directory+"/"+file+".jpg", pic.url)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("Downloaded: ", counter)
-	}
-
+	DownlaodInParallel(pics, save_directory, total_pic)
 }
