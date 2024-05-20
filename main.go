@@ -34,12 +34,15 @@ func GetPics(page int, pics *[]pic) {
 	json.NewDecoder(resp.Body).Decode(&json_data)
 	data := json_data["data"].([]interface{})
 
-	utils.CreateDirectory(save_directory)
 	for _, value := range data {
 		counter++
-		// pp_json(i)
-		file_url := value.(map[string]interface{})["path"].(string)
+		file_url, ok := value.(map[string]interface{})["path"].(string)
+		if !ok {
+			continue
+		}
+
 		file_name := strconv.Itoa(counter)
+
 		*pics = append(*pics, pic{name: file_name, url: file_url})
 
 	}
@@ -75,6 +78,7 @@ func DownlaodInParallel(pics []pic, save_directory string, pic_num int) {
 
 func main() {
 	pics := []pic{}
+	utils.CreateDirectory(save_directory)
 	var err error
 
 	var total_pic int
