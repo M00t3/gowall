@@ -13,8 +13,7 @@ type pic struct {
 	url  string
 }
 
-func GetPics(page int) []pic {
-	var pics []pic
+func GetPics(page int, pics *[]pic) {
 	counter := 0
 	var url string
 	if api_key != "" {
@@ -28,7 +27,6 @@ func GetPics(page int) []pic {
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
-		return nil
 	}
 
 	var json_data map[string]interface{}
@@ -41,23 +39,43 @@ func GetPics(page int) []pic {
 		// pp_json(i)
 		file_url := value.(map[string]interface{})["path"].(string)
 		file_name := strconv.Itoa(counter)
-		pics = append(pics, pic{name: file_name, url: file_url})
+		*pics = append(*pics, pic{name: file_name, url: file_url})
 
 	}
-	return pics
 }
 
 func main() {
 	pics := []pic{}
-	for i := 1; i <= pages; i++ {
-		pics = GetPics(i)
+	var err error
+
+	var page_number int
+	fmt.Print("Enter an integer for number of wallpaper that you want downlaod: ")
+	_, err = fmt.Scan(&page_number)
+	if err != nil {
+		panic(err)
 	}
 
-	for _, pic := range pics {
-		err := utils.DownloadFile(save_directory+"/"+pic.name+".jpg", pic.url)
-		if err != nil {
+	page := 0
+	for {
+		if len(pics) >= page_number {
+			break
 		}
-		fmt.Println("Downloaded: ", pic.name)
+		page++
+		GetPics(page, &pics)
+	}
+
+	counter := 0
+	for _, pic := range pics {
+		counter++
+		if counter > page_number {
+			break
+		}
+		file := strconv.Itoa(counter)
+		err = utils.DownloadFile(save_directory+"/"+file+".jpg", pic.url)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("Downloaded: ", counter)
 	}
 
 }

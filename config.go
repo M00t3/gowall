@@ -10,5 +10,5 @@ var (
 	topRange       = "1y"
 	sorting        = "favorites"
 	save_directory = "images"
-	pages          = 1
+	api_key        = ""
 )
