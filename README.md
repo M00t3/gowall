@@ -58,6 +58,12 @@ You can configure the application by modifying the `config.go` file. Here are th
 
 you can see more details about the options in the [Wallhaven API documentation](https://wallhaven.cc/help/api).
 
+## TODO
+
+- [ ] select category, purity, sorting, etc. from the command line.
+- [ ] add a progress bar.
+- [ ] optional notification when the download is finished.
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
