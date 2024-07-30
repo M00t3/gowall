@@ -13,7 +13,7 @@ This is a simple and efficient wallpaper downloader written in Go. It uses the W
 Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/mooteee/gowall.git
+git clone https://github.com/M00t3/gowall.git
 ```
 
 Navigate to the project directory:
